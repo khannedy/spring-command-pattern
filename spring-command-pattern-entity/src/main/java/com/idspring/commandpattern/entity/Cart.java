@@ -22,4 +22,10 @@ public class Cart {
 
     private List<CartItem> items = new ArrayList<>();
 
+    public List<CartItem> getItems() {
+        if (items == null) {
+            items = new ArrayList<>();
+        }
+        return items;
+    }
 }

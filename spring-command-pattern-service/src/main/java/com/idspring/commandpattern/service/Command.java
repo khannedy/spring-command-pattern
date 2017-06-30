@@ -7,8 +7,8 @@ import reactor.core.publisher.Mono;
  * @author Eko Kurniawan Khannedy
  * @since 30/06/17
  */
-public interface Command<T, R extends ServiceRequest> {
+public interface Command<RESULT, REQUEST extends ServiceRequest> {
 
-    Mono<T> execute(R request);
+    Mono<RESULT> execute(REQUEST request);
 
 }
