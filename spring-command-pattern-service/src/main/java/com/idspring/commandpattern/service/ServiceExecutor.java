@@ -9,6 +9,6 @@ import reactor.core.publisher.Mono;
  */
 public interface ServiceExecutor {
 
-    <T, R extends ServiceRequest> Mono<T> execute(Class<Service<T, R>> serviceClass, R request);
+    <T, R extends ServiceRequest> Mono<T> execute(Class<? extends Command<T, R>> commandClass, R request);
 
 }
