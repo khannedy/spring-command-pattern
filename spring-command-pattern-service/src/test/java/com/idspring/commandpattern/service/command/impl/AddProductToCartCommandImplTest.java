@@ -53,6 +53,24 @@ public class AddProductToCartCommandImplTest {
     }
 
     @Test
+    public void testAddProductToNonExistsCart() throws Exception {
+        String cartId = "not-exists";
+        String productId = "sample-product-id";
+
+        createProduct(productId);
+
+        AddProductToCartRequest request = AddProductToCartRequest.builder()
+                .cartId(cartId)
+                .productId(productId)
+                .quantity(10)
+                .build();
+
+        Cart result = command.execute(request).block();
+
+        assertThat(result, nullValue());
+    }
+
+    @Test
     public void testAddProductToEmptyCart() throws Exception {
         String cartId = "sample-cart-id";
         String productId = "sample-product-id";
