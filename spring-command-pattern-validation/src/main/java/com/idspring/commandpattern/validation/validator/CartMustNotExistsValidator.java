@@ -1,11 +1,7 @@
 package com.idspring.commandpattern.validation.validator;
 
-import com.idspring.commandpattern.entity.Cart;
-import com.idspring.commandpattern.entity.Product;
 import com.idspring.commandpattern.repository.CartRepository;
-import com.idspring.commandpattern.repository.ProductRepository;
-import com.idspring.commandpattern.validation.CartMustExists;
-import com.idspring.commandpattern.validation.ProductMustExists;
+import com.idspring.commandpattern.validation.CartMustNotExists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +13,13 @@ import javax.validation.ConstraintValidatorContext;
  * @since 30/06/17
  */
 @Component
-public class CartMustExistsValidator implements ConstraintValidator<CartMustExists, String> {
+public class CartMustNotExistsValidator implements ConstraintValidator<CartMustNotExists, String> {
 
     @Autowired
     private CartRepository cartRepository;
 
     @Override
-    public void initialize(CartMustExists constraintAnnotation) {
+    public void initialize(CartMustNotExists constraintAnnotation) {
 
     }
 
@@ -33,6 +29,6 @@ public class CartMustExistsValidator implements ConstraintValidator<CartMustExis
             return true;
         }
 
-        return cartRepository.existsById(value).block();
+        return cartRepository.existsById(value).block() == Boolean.FALSE;
     }
 }
