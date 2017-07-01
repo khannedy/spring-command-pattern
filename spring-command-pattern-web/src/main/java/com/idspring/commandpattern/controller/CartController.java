@@ -5,9 +5,11 @@ import com.idspring.commandpattern.model.controller.CartAddProductRequest;
 import com.idspring.commandpattern.model.controller.Response;
 import com.idspring.commandpattern.model.service.AddProductToCartRequest;
 import com.idspring.commandpattern.model.service.CreateNewCartRequest;
+import com.idspring.commandpattern.model.service.GetCartDetailRequest;
 import com.idspring.commandpattern.service.ServiceExecutor;
 import com.idspring.commandpattern.service.command.AddProductToCartCommand;
 import com.idspring.commandpattern.service.command.CreateNewCartCommand;
+import com.idspring.commandpattern.service.command.GetCartDetailCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +50,18 @@ public class CartController {
                 .build();
 
         return serviceExecutor.execute(AddProductToCartCommand.class, request)
+                .map(Response::ok)
+                .subscribeOn(Schedulers.elastic());
+    }
+
+    @RequestMapping(value = "/{cartId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<Response<Cart>> detail(@PathVariable("cartId") String cartId) {
+        GetCartDetailRequest request = GetCartDetailRequest.builder()
+                .cartId(cartId)
+                .build();
+
+        return serviceExecutor.execute(GetCartDetailCommand.class, request)
                 .map(Response::ok)
                 .subscribeOn(Schedulers.elastic());
     }

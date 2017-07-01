@@ -6,8 +6,10 @@ import com.idspring.commandpattern.entity.CartItem;
 import com.idspring.commandpattern.model.controller.CartAddProductRequest;
 import com.idspring.commandpattern.model.service.AddProductToCartRequest;
 import com.idspring.commandpattern.model.service.CreateNewCartRequest;
+import com.idspring.commandpattern.model.service.GetCartDetailRequest;
 import com.idspring.commandpattern.service.command.AddProductToCartCommand;
 import com.idspring.commandpattern.service.command.CreateNewCartCommand;
+import com.idspring.commandpattern.service.command.GetCartDetailCommand;
 import io.restassured.RestAssured;
 import org.junit.After;
 import org.junit.Before;
@@ -46,12 +48,46 @@ public class CartControllerTest {
     @MockBean
     private AddProductToCartCommand addProductToCartCommand;
 
+    @MockBean
+    private GetCartDetailCommand getCartDetailCommand;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    private List<CartItem> cartItems;
+
+    private Cart cart;
 
     @Before
     public void setUp() throws Exception {
         RestAssured.port = serverPort;
+
+        setUpCartItems();
+        setUpCart();
+    }
+
+    private void setUpCartItems() {
+        cartItems = Arrays.asList(
+                CartItem.builder()
+                        .id("itemId1")
+                        .price(500L)
+                        .quantity(10)
+                        .name("Item Name1")
+                        .build(),
+                CartItem.builder()
+                        .id("itemId2")
+                        .price(1000L)
+                        .quantity(5)
+                        .name("Item Name2")
+                        .build()
+        );
+    }
+
+    private void setUpCart() {
+        cart = Cart.builder()
+                .id("cartId")
+                .items(cartItems)
+                .build();
     }
 
     @Test
@@ -161,26 +197,6 @@ public class CartControllerTest {
     }
 
     private void mockAddProductReturnSuccess() {
-        List<CartItem> items = Arrays.asList(
-                CartItem.builder()
-                        .id("itemId1")
-                        .price(500L)
-                        .quantity(10)
-                        .name("Item Name1")
-                        .build(),
-                CartItem.builder()
-                        .id("itemId2")
-                        .price(1000L)
-                        .quantity(5)
-                        .name("Item Name2")
-                        .build()
-        );
-
-        Cart cart = Cart.builder()
-                .id("cartId")
-                .items(items)
-                .build();
-
         when(addProductToCartCommand.execute(Mockito.any(AddProductToCartRequest.class)))
                 .thenReturn(Mono.just(cart));
     }
@@ -190,8 +206,59 @@ public class CartControllerTest {
                 .thenReturn(Mono.error(new NullPointerException()));
     }
 
+    @Test
+    public void testGetCartSuccess() throws Exception {
+        mockGetCartDetailSuccess();
+
+        // @formatter:off
+        RestAssured.given()
+                    .header("Accept", "application/json")
+                .when()
+                    .get("/carts/cardId")
+                .then()
+                    .body("code", equalTo(HttpStatus.OK.value()))
+                    .body("status", equalTo(HttpStatus.OK.getReasonPhrase()))
+                    .body("data.id", equalTo("cartId"));
+        // @formatter:on
+
+        verify(getCartDetailCommand, times(1))
+                .execute(Mockito.any(GetCartDetailRequest.class));
+    }
+
+    @Test
+    public void testGetCartError() throws Exception {
+        mockGetCartDetailThrownException();
+
+        // @formatter:off
+        RestAssured.given()
+                    .header("Accept", "application/json")
+                .when()
+                    .get("/carts/cardId")
+                .then()
+                    .body("code", equalTo(HttpStatus.INTERNAL_SERVER_ERROR.value()))
+                    .body("status", equalTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+        // @formatter:on
+
+        verify(getCartDetailCommand, times(1))
+                .execute(Mockito.any(GetCartDetailRequest.class));
+    }
+
+    private void mockGetCartDetailSuccess() {
+        when(getCartDetailCommand.execute(Mockito.any(GetCartDetailRequest.class)))
+                .thenReturn(Mono.just(cart));
+    }
+
+    private void mockGetCartDetailThrownException() {
+        when(getCartDetailCommand.execute(Mockito.any(GetCartDetailRequest.class)))
+                .thenReturn(Mono.error(new NullPointerException()));
+    }
+
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(createNewCartCommand, addProductToCartCommand);
+        verifyNoMoreInteractions(
+                createNewCartCommand,
+                addProductToCartCommand,
+                getCartDetailCommand
+        );
     }
 }
