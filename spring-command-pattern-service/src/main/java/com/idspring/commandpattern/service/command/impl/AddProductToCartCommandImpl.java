@@ -6,6 +6,7 @@ import com.idspring.commandpattern.entity.Product;
 import com.idspring.commandpattern.model.service.AddProductToCartRequest;
 import com.idspring.commandpattern.repository.CartRepository;
 import com.idspring.commandpattern.repository.ProductRepository;
+import com.idspring.commandpattern.service.AbstractCommand;
 import com.idspring.commandpattern.service.command.AddProductToCartCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,8 @@ import reactor.core.publisher.Mono;
  * @since 30/06/17
  */
 @Component
-public class AddProductToCartCommandImpl implements AddProductToCartCommand {
+public class AddProductToCartCommandImpl extends AbstractCommand<Cart, AddProductToCartRequest>
+        implements AddProductToCartCommand {
 
     @Autowired
     private ProductRepository productRepository;
@@ -25,7 +27,7 @@ public class AddProductToCartCommandImpl implements AddProductToCartCommand {
     private CartRepository cartRepository;
 
     @Override
-    public Mono<Cart> execute(AddProductToCartRequest request) {
+    public Mono<Cart> doExecute(AddProductToCartRequest request) {
         return cartRepository.findById(request.getCartId()).flatMap(cart ->
                 productRepository.findById(request.getProductId()).map(product ->
                         addOrUpdateProductInCart(cart, product, request.getQuantity())

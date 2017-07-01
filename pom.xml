@@ -13,6 +13,7 @@
         <module>spring-command-pattern-entity</module>
         <module>spring-command-pattern-model</module>
         <module>spring-command-pattern-properties</module>
+        <module>spring-command-pattern-validation</module>
     </modules>
     <packaging>pom</packaging>
 

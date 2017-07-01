@@ -22,6 +22,16 @@
             <artifactId>spring-command-pattern-properties</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.idspring</groupId>
+            <artifactId>spring-command-pattern-model</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.idspring</groupId>
+            <artifactId>spring-command-pattern-validation</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

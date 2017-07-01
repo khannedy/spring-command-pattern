@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-command-pattern-model</artifactId>
+    <artifactId>spring-command-pattern-validation</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.idspring</groupId>
-            <artifactId>spring-command-pattern-validation</artifactId>
+            <artifactId>spring-command-pattern-repository</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
