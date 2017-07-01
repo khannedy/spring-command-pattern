@@ -4,13 +4,13 @@ import com.idspring.commandpattern.entity.Cart;
 import com.idspring.commandpattern.model.controller.CartAddProductRequest;
 import com.idspring.commandpattern.model.controller.Response;
 import com.idspring.commandpattern.model.service.AddProductToCartRequest;
+import com.idspring.commandpattern.model.service.CreateNewCartRequest;
 import com.idspring.commandpattern.service.ServiceExecutor;
 import com.idspring.commandpattern.service.command.AddProductToCartCommand;
+import com.idspring.commandpattern.service.command.CreateNewCartCommand;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -25,9 +25,22 @@ public class CartController {
     @Autowired
     private ServiceExecutor serviceExecutor;
 
-    @RequestMapping("/{cartId}/_add-product")
+    @RequestMapping(value = "/{cartId}", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<Response<Cart>> create(@PathVariable("cartId") String cartId) {
+        CreateNewCartRequest request = CreateNewCartRequest.builder()
+                .cartId(cartId)
+                .build();
+
+        return serviceExecutor.execute(CreateNewCartCommand.class, request)
+                .map(Response::ok)
+                .subscribeOn(Schedulers.elastic());
+    }
+
+    @RequestMapping(value = "/{cartId}/_add-product", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Response<Cart>> addProduct(@PathVariable("cartId") String cartId,
-                                           @Validated CartAddProductRequest requestBody) {
+                                           @RequestBody CartAddProductRequest requestBody) {
         AddProductToCartRequest request = AddProductToCartRequest.builder()
                 .cartId(cartId)
                 .productId(requestBody.getProductId())
@@ -35,7 +48,7 @@ public class CartController {
                 .build();
 
         return serviceExecutor.execute(AddProductToCartCommand.class, request)
-                .map(Response::okOrNotFound)
+                .map(Response::ok)
                 .subscribeOn(Schedulers.elastic());
     }
 
