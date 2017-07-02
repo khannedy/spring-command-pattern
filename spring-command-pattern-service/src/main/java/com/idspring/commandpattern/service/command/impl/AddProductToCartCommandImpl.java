@@ -28,10 +28,10 @@ public class AddProductToCartCommandImpl extends AbstractCommand<Cart, AddProduc
 
     @Override
     public Mono<Cart> doExecute(AddProductToCartRequest request) {
-        return cartRepository.findById(request.getCartId()).flatMap(cart ->
-                productRepository.findById(request.getProductId()).map(product ->
-                        addOrUpdateProductInCart(cart, product, request.getQuantity())
-                )
+        return Mono.zip(
+                objects -> addOrUpdateProductInCart((Cart) objects[0], (Product) objects[1], request.getQuantity()),
+                cartRepository.findById(request.getCartId()),
+                productRepository.findById(request.getProductId())
         ).flatMap(cart -> cartRepository.save(cart));
     }
 
