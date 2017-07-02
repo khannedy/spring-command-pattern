@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.idspring.commandpattern.entity.Cart;
 import com.idspring.commandpattern.entity.CartItem;
 import com.idspring.commandpattern.model.controller.CartAddProductRequest;
+import com.idspring.commandpattern.model.controller.CartUpdateProductRequest;
 import com.idspring.commandpattern.model.service.AddProductToCartRequest;
 import com.idspring.commandpattern.model.service.CreateNewCartRequest;
 import com.idspring.commandpattern.model.service.GetCartDetailRequest;
+import com.idspring.commandpattern.model.service.UpdateProductInCartRequest;
 import com.idspring.commandpattern.service.command.AddProductToCartCommand;
 import com.idspring.commandpattern.service.command.CreateNewCartCommand;
 import com.idspring.commandpattern.service.command.GetCartDetailCommand;
+import com.idspring.commandpattern.service.command.UpdateProductInCartCommand;
 import io.restassured.RestAssured;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +53,9 @@ public class CartControllerTest {
 
     @MockBean
     private GetCartDetailCommand getCartDetailCommand;
+
+    @MockBean
+    private UpdateProductInCartCommand updateProductInCartCommand;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -253,12 +259,78 @@ public class CartControllerTest {
                 .thenReturn(Mono.error(new NullPointerException()));
     }
 
+    @Test
+    public void testUpdateProductSuccess() throws Exception {
+        mockUpdateProductSuccess();
+
+        CartUpdateProductRequest request = CartUpdateProductRequest.builder()
+                .productId("item1")
+                .quantity(5)
+                .build();
+
+        // @formatter:off
+        RestAssured.given()
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .body(objectMapper.writeValueAsString(request))
+                .when()
+                    .put("/carts/cardId/_update-product")
+                .then()
+                    .body("code", equalTo(HttpStatus.OK.value()))
+                    .body("status", equalTo(HttpStatus.OK.getReasonPhrase()))
+                    .body("data.id", equalTo("cartId"))
+                    .body("data.items.id", hasItems("itemId1", "itemId2"))
+                    .body("data.items.price", hasItems(1000, 500))
+                    .body("data.items.quantity", hasItems(10, 5))
+                    .body("data.items.name", hasItems("Item Name1", "Item Name2"));
+        // @formatter:on
+
+        verify(updateProductInCartCommand, times(1))
+                .execute(Mockito.any(UpdateProductInCartRequest.class));
+    }
+
+    @Test
+    public void testUpdateProductError() throws Exception {
+        mockUpdateProductThrownException();
+
+        CartUpdateProductRequest request = CartUpdateProductRequest.builder()
+                .productId("item1")
+                .quantity(5)
+                .build();
+
+        // @formatter:off
+        RestAssured.given()
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .body(objectMapper.writeValueAsString(request))
+                .when()
+                    .put("/carts/cardId/_update-product")
+                .then()
+                    .body("code", equalTo(HttpStatus.INTERNAL_SERVER_ERROR.value()))
+                    .body("status", equalTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+        // @formatter:on
+
+        verify(updateProductInCartCommand, times(1))
+                .execute(Mockito.any(UpdateProductInCartRequest.class));
+    }
+
+    private void mockUpdateProductSuccess() {
+        when(updateProductInCartCommand.execute(Mockito.any(UpdateProductInCartRequest.class)))
+                .thenReturn(Mono.just(cart));
+    }
+
+    private void mockUpdateProductThrownException() {
+        when(updateProductInCartCommand.execute(Mockito.any(UpdateProductInCartRequest.class)))
+                .thenReturn(Mono.error(new NullPointerException()));
+    }
+
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(
                 createNewCartCommand,
                 addProductToCartCommand,
-                getCartDetailCommand
+                getCartDetailCommand,
+                updateProductInCartCommand
         );
     }
 }
