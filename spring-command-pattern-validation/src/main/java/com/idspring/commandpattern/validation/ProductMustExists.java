@@ -28,4 +28,6 @@ public @interface ProductMustExists {
 
     Class<? extends Payload>[] payload() default {};
 
+    String[] path() default {};
+
 }

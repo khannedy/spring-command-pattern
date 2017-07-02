@@ -31,6 +31,8 @@ public @interface ProductQuantityMustEnough {
 
     Class<? extends Payload>[] payload() default {};
 
+    String[] path() default {};
+
     interface ProductQuantity {
 
         String getProductId();

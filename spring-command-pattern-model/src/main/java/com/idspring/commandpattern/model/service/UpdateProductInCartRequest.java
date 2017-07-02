@@ -17,8 +17,8 @@ import javax.validation.constraints.Min;
  */
 @Data
 @Builder
-@ProductMustExistsInCart
-@ProductQuantityMustEnough
+@ProductMustExistsInCart(path = "productId")
+@ProductQuantityMustEnough(path = "quantity")
 public class UpdateProductInCartRequest implements
         ProductQuantityMustEnough.ProductQuantityUpdate,
         ProductMustExistsInCart.ProductInCart,

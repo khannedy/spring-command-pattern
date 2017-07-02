@@ -1,6 +1,7 @@
 package com.idspring.commandpattern.controller;
 
 import com.idspring.commandpattern.model.controller.Response;
+import com.idspring.commandpattern.model.service.PingRequest;
 import com.idspring.commandpattern.service.ServiceExecutor;
 import com.idspring.commandpattern.service.command.PingCommand;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,10 @@ public class HomeController {
     @RequestMapping(value = "/ping", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Response<String>> ping() {
-        return serviceExecutor.execute(PingCommand.class, null)
+        PingRequest request = PingRequest.builder()
+                .build();
+
+        return serviceExecutor.execute(PingCommand.class, request)
                 .map(Response::ok)
                 .subscribeOn(Schedulers.elastic());
     }

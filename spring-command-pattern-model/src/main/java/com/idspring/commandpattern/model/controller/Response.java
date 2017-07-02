@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Eko Kurniawan Khannedy
@@ -21,6 +21,25 @@ public class Response<T> {
     private String status;
 
     private T data;
+
+    private Map<String, List<String>> errors;
+
+    public void addError(String key, String error) {
+        initializeErrorsIfNull();
+        initializeListIfNull(key);
+
+        errors.get(key).add(error);
+    }
+
+    private void initializeErrorsIfNull() {
+        if (errors == null) errors = new HashMap<>();
+    }
+
+    private void initializeListIfNull(String key) {
+        errors.computeIfAbsent(key, k -> new ArrayList<>());
+    }
+
+    // ------------------------ STATIC --------------------------- //
 
     public static <T> Response<T> ok(T data) {
         Assert.notNull(data, "Data must not null");

@@ -16,7 +16,7 @@ import javax.validation.constraints.Min;
  */
 @Data
 @Builder
-@ProductQuantityMustEnough
+@ProductQuantityMustEnough(path = "quantity")
 public class AddProductToCartRequest implements ServiceRequest, ProductQuantityMustEnough.ProductQuantity {
 
     @NotBlank

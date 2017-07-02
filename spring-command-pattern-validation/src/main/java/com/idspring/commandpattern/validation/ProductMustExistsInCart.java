@@ -27,6 +27,8 @@ public @interface ProductMustExistsInCart {
 
     Class<? extends Payload>[] payload() default {};
 
+    String[] path() default {};
+
     interface ProductInCart {
 
         String getCartId();

@@ -27,4 +27,6 @@ public @interface CartMustExists {
 
     Class<? extends Payload>[] payload() default {};
 
+    String[] path() default {};
+
 }
