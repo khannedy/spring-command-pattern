@@ -33,6 +33,18 @@ public class ProductQuantityMustEnoughValidator implements
 
         Product product = productRepository.findById(value.getProductId()).block();
 
-        return product == null || product.getStock() >= value.getQuantity();
+        if (isProductNotExists(product)) {
+            return true;
+        }
+
+        return isStockEnough(product, value.getQuantity());
+    }
+
+    private boolean isProductNotExists(Product product) {
+        return product == null;
+    }
+
+    private boolean isStockEnough(Product product, Integer quantity) {
+        return product.getStock() >= quantity;
     }
 }

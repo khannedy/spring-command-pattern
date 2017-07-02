@@ -1,11 +1,7 @@
 package com.idspring.commandpattern.validation.validator;
 
-import com.idspring.commandpattern.entity.Cart;
-import com.idspring.commandpattern.entity.Product;
 import com.idspring.commandpattern.repository.CartRepository;
-import com.idspring.commandpattern.repository.ProductRepository;
 import com.idspring.commandpattern.validation.CartMustExists;
-import com.idspring.commandpattern.validation.ProductMustExists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

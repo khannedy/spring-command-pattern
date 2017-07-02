@@ -1,7 +1,6 @@
 package com.idspring.commandpattern.validation;
 
-import com.idspring.commandpattern.validation.validator.ProductQuantityMustEnoughValidator;
-import com.idspring.commandpattern.validation.validator.ProductQuantityUpdateMustEnoughValidator;
+import com.idspring.commandpattern.validation.validator.ProductMustExistsInCartValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -14,38 +13,25 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Eko Kurniawan Khannedy
- * @since 30/06/17
+ * @since 01/07/17
  */
 @Target({TYPE, ANNOTATION_TYPE, METHOD, FIELD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {
-        ProductQuantityMustEnoughValidator.class,
-        ProductQuantityUpdateMustEnoughValidator.class
-})
+@Constraint(validatedBy = {ProductMustExistsInCartValidator.class})
 @Documented
-public @interface ProductQuantityMustEnough {
+public @interface ProductMustExistsInCart {
 
-    String message() default "ProductQuantityMustEnough";
+    String message() default "ProductMustExistsInCart";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    interface ProductQuantity {
-
-        String getProductId();
-
-        Integer getQuantity();
-
-    }
-
-    interface ProductQuantityUpdate {
+    interface ProductInCart {
 
         String getCartId();
 
         String getProductId();
-
-        Integer getQuantity();
 
     }
 
