@@ -7,13 +7,17 @@ import com.idspring.commandpattern.model.service.AddProductToCartRequest;
 import com.idspring.commandpattern.repository.CartRepository;
 import com.idspring.commandpattern.repository.ProductRepository;
 import com.idspring.commandpattern.service.command.AddProductToCartCommand;
+import com.idspring.commandpattern.service.exception.CommandValidationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.validation.ConstraintViolation;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
@@ -65,9 +69,14 @@ public class AddProductToCartCommandImplTest {
                 .quantity(10)
                 .build();
 
-        Cart result = command.execute(request).block();
-
-        assertThat(result, nullValue());
+        try {
+            command.execute(request).block();
+            fail("it should thrown exception");
+        } catch (CommandValidationException ex) {
+            List<String> messages = ex.getConstraintViolations().stream()
+                    .map(ConstraintViolation::getMessage).collect(Collectors.toList());
+            assertThat(messages, hasItems("CartMustExists"));
+        }
     }
 
     @Test
