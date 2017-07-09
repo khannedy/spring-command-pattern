@@ -4,15 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.idspring.commandpattern.entity.Cart;
 import com.idspring.commandpattern.entity.CartItem;
 import com.idspring.commandpattern.model.controller.CartAddProductRequest;
+import com.idspring.commandpattern.model.controller.CartRemoveProductRequest;
 import com.idspring.commandpattern.model.controller.CartUpdateProductRequest;
-import com.idspring.commandpattern.model.service.AddProductToCartRequest;
-import com.idspring.commandpattern.model.service.CreateNewCartRequest;
-import com.idspring.commandpattern.model.service.GetCartDetailRequest;
-import com.idspring.commandpattern.model.service.UpdateProductInCartRequest;
-import com.idspring.commandpattern.service.command.AddProductToCartCommand;
-import com.idspring.commandpattern.service.command.CreateNewCartCommand;
-import com.idspring.commandpattern.service.command.GetCartDetailCommand;
-import com.idspring.commandpattern.service.command.UpdateProductInCartCommand;
+import com.idspring.commandpattern.model.service.*;
+import com.idspring.commandpattern.service.command.*;
 import io.restassured.RestAssured;
 import org.junit.After;
 import org.junit.Before;
@@ -58,6 +53,9 @@ public class CartControllerTest {
 
     @MockBean
     private UpdateProductInCartCommand updateProductInCartCommand;
+
+    @MockBean
+    private RemoveProductFromCartCommand removeProductFromCartCommand;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -326,13 +324,65 @@ public class CartControllerTest {
                 .thenReturn(Mono.error(new NullPointerException()));
     }
 
+    @Test
+    public void testRemoveProductSuccess() throws Exception {
+        mockRemoveProductSuccess();
+
+        // @formatter:off
+        RestAssured.given()
+                    .header("Accept", "application/json")
+                .when()
+                    .delete("/carts/cardId/item1")
+                .then()
+                    .body("code", equalTo(HttpStatus.OK.value()))
+                    .body("status", equalTo(HttpStatus.OK.getReasonPhrase()))
+                    .body("data.id", equalTo("cartId"))
+                    .body("data.items.id", hasItems("itemId1", "itemId2"))
+                    .body("data.items.price", hasItems(1000, 500))
+                    .body("data.items.quantity", hasItems(10, 5))
+                    .body("data.items.name", hasItems("Item Name1", "Item Name2"));
+        // @formatter:on
+
+        verify(removeProductFromCartCommand, times(1))
+                .execute(Mockito.any(RemoveProductFromCartRequest.class));
+    }
+
+    @Test
+    public void testRemoveProductError() throws Exception {
+        mockRemoveProductThrownException();
+
+        // @formatter:off
+        RestAssured.given()
+                    .header("Accept", "application/json")
+                .when()
+                    .delete("/carts/cardId/item1")
+                .then()
+                    .body("code", equalTo(HttpStatus.INTERNAL_SERVER_ERROR.value()))
+                    .body("status", equalTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+        // @formatter:on
+
+        verify(removeProductFromCartCommand, times(1))
+                .execute(Mockito.any(RemoveProductFromCartRequest.class));
+    }
+
+    private void mockRemoveProductSuccess() {
+        when(removeProductFromCartCommand.execute(Mockito.any(RemoveProductFromCartRequest.class)))
+                .thenReturn(Mono.just(cart));
+    }
+
+    private void mockRemoveProductThrownException() {
+        when(removeProductFromCartCommand.execute(Mockito.any(RemoveProductFromCartRequest.class)))
+                .thenReturn(Mono.error(new NullPointerException()));
+    }
+
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(
                 createNewCartCommand,
                 addProductToCartCommand,
                 getCartDetailCommand,
-                updateProductInCartCommand
+                updateProductInCartCommand,
+                removeProductFromCartCommand
         );
     }
 }

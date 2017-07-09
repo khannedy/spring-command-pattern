@@ -24,17 +24,17 @@ public abstract class AbstractCommand<RESULT, REQUEST extends ServiceRequest>
     protected ApplicationContext applicationContext;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public final void afterPropertiesSet() throws Exception {
         this.validator = applicationContext.getBean(Validator.class);
     }
 
     @Override
-    public Mono<RESULT> execute(REQUEST request) {
+    public final Mono<RESULT> execute(REQUEST request) {
         Set<ConstraintViolation<REQUEST>> constraintViolations = validator.validate(request);
         if (constraintViolations.isEmpty()) {
             return doExecute(request);
