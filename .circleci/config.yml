@@ -1,25 +1,21 @@
-# Java Maven CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
 version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
       - image: maven:3-jdk-8
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
     working_directory: ~/repo
-
     environment:
-      # Customize the JVM maximum heap limit
       MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - run: mvn clean compile
 
+  test:
+    docker:
+      - image: maven:3-jdk-8
+    working_directory: ~/repo
+    environment:
+      MAVEN_OPTS: -Xmx3200m
     steps:
       - checkout
       - run: mvn clean test
