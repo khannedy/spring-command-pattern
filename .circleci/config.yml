@@ -22,5 +22,4 @@ jobs:
 
     steps:
       - checkout
-      - run: mvn dependency:go-offline
-      - run: mvn test
+      - run: mvn clean test
